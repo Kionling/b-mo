@@ -1,42 +1,48 @@
 import cv2
-# import tensorflow as tf
+import numpy as np
 
-# # Load your pre-trained model (this is just a placeholder for the actual model loading process)
-# # model = tf.saved_model.load('path_to_pretrained_model')
+# Configuration and initialization
+prototxt_path = 'models/MobileNetSSD_deploy.prototxt'
+model_path = 'models/MobileNetSSD_deploy.caffemodel'
+min_confidence = 0.2
+classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+np.random.seed(543210)  # Seed for random colors
+colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
-# # Initialize webcam
-# cap = cv2.VideoCapture(0)
+# Load the model
+net = cv2.dnn.readNet(prototxt_path, model_path)
 
-# while True:
-#     ret, frame = cap.read()
-#     if not ret:
-#         break
-    
-#     # Pre-process the frame for your model as necessary
-#     # For example, resizing, normalization, etc.
-#     input_frame = preprocess(frame)
-    
-#     # Object detection
-#     detections = model(input_frame)
-    
-#     # Post-process detections and visualize them
-#     # This typically includes drawing bounding boxes and labels on the frame
-#     processed_frame = postprocess(frame, detections)
-    
-#     # Display the processed frame
-#     cv2.imshow('Object Detection', processed_frame)
-    
-#     if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
-#         break
+# Start video capture
+cap = cv2.VideoCapture(0)
 
-# # Release the webcam and destroy all OpenCV windows
-# cap.release()
-# cv2.destroyAllWindows()
-vid = cv2.VideoCapture(0)
-while(True):
-    ret, frame = vid.read()
-    cv2.imshow('frame', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+while True:
+    ret, image = cap.read()
+    if not ret:
+        break  # If no frame is captured or returned, exit the loop
+
+    height, width = image.shape[:2]
+    blob = cv2.dnn.blobFromImage(cv2.resize(image, (300, 300)), 0.007843, (300, 300), 127.5)
+    net.setInput(blob)
+    detected_objects = net.forward()
+
+    for i in range(detected_objects.shape[2]):
+        confidence = detected_objects[0, 0, i, 2]
+        if confidence > min_confidence:
+            class_index = int(detected_objects[0, 0, i, 1])
+            x_left = int(detected_objects[0, 0, i, 3] * width)
+            y_top = int(detected_objects[0, 0, i, 4] * height)
+            x_right = int(detected_objects[0, 0, i, 5] * width)
+            y_bottom = int(detected_objects[0, 0, i, 6] * height)
+
+            prediction_text = f'{classes[class_index]}: {confidence:.2f}%'
+            cv2.rectangle(image, (x_left, y_top), (x_right, y_bottom), colors[class_index], 2)
+            cv2.putText(image, prediction_text, (x_left, y_top - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[class_index], 2)
+
+    cv2.imshow('Detected Objects', image)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to quit
         break
-vid.release()
+
+# Clean up
 cv2.destroyAllWindows()
+cap.release()
