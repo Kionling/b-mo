@@ -6,5 +6,5 @@ def text_to_speech(text):
     speech_file = "speech.mp3"
     speech.save(speech_file)
     os.system('afplay ' + speech_file)
-
+    os.remove(speech_file)
 text_to_speech('Hello, world!')
