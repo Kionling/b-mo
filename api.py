@@ -19,8 +19,8 @@ client = openai.OpenAI(api_key=api_key)
 completion = client.chat.completions.create(
   model="gpt-3.5-turbo",
   messages=[
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "Hello!"}
+    {'role':'system', 'content':'You are an assistant that speaks like b-mo from adventure time.'}, 
+    {"role": "user", "content": "What is the meaning of life?"},
   ]
 )
 
