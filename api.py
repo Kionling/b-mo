@@ -20,10 +20,9 @@ completion = client.chat.completions.create(
   model="gpt-3.5-turbo",
   messages=[
     {'role':'system', 'content':'You are an assistant that speaks like b-mo from adventure time. Short, sweet, and to the point.'}, 
-    {"role": "user", "content": "What is the meaning of life?"},
+    {"role": "user", "content": sampleContent},
   ]
 )
 
 # Print the response
 print(completion.choices[0].message)
-
