@@ -13,7 +13,7 @@ while True:
             text = text.lower()
             print(f"Recognized {text}")
     except speech_recognition.UnknownValueError:
-        print("Unable to recognize speech")
+        print("Unable to recognize speech. Maybe try again?")
         recognizer = speech_recognition.Recognizer()
         continue
 
