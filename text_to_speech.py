@@ -1,6 +1,20 @@
 from gtts import gTTS
 import os
 import torch
+from pydub import AudioSegment
+import torchaudio
+import torchaudio.transforms as T
+from torchaudio.functional import resample
+
+def load_model(model_path):
+
+    model = torch.load(model_path, map_location=torch.device('cpu'))
+    model.eval()
+    return model
+
+def preprocess_audio(audio_path):
+    waveform, sample_rate = torchaudio.load(audio_path)
+    return waveform, sample_rate
 
 def text_to_speech(text):
     speech = gTTS(text)
@@ -10,8 +24,3 @@ def text_to_speech(text):
     os.remove(speech_file)
 text_to_speech('Hi there!')
 
-# Assuming your model is a PyTorch model
-model = torch.load('path/to/your/model.pth')
-
-# Make sure to set the model to evaluation mode
-model.eval()
