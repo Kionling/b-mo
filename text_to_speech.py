@@ -7,4 +7,4 @@ def text_to_speech(text):
     speech.save(speech_file)
     os.system('afplay ' + speech_file)
 
-text_to_speech('Hello, world!')
+text_to_speech('Hello, world!') 
